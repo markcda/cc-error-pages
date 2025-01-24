@@ -78,11 +78,15 @@ fn App() -> impl IntoView {
           }
             .into_any()
         }
-        _ => {
+        "/oops" => {
           view! {
             <ErrorPage err_num="???".to_string() err_msg=t_string!(i18n, specific).to_string() />
           }
             .into_any()
+        }
+        _ => {
+          redirect("/oops".to_string());
+          view! {}.into_any()
         }
       }}
     </main>
