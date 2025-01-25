@@ -565,7 +565,7 @@
           "exec_in_project_dir": false
         }
       ],
-      "default": true
+      "default": false
     },
     {
       "title": "build",

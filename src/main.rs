@@ -54,12 +54,6 @@ fn App() -> impl IntoView {
           }
             .into_any()
         }
-        "/" | "/404" => {
-          view! {
-            <ErrorPage err_num="404".to_string() err_msg=t_string!(i18n, not_found).to_string() />
-          }
-            .into_any()
-        }
         "/405" => {
           view! {
             <ErrorPage err_num="405".to_string() err_msg=t_string!(i18n, not_allowed).to_string() />
@@ -81,6 +75,18 @@ fn App() -> impl IntoView {
         "/oops" => {
           view! {
             <ErrorPage err_num="???".to_string() err_msg=t_string!(i18n, specific).to_string() />
+          }
+            .into_any()
+        }
+        "/" | "/404" => {
+          view! {
+            <ErrorPage err_num="404".to_string() err_msg=t_string!(i18n, not_found).to_string() />
+          }
+            .into_any()
+        }
+        s if s.len() != 4 => {
+          view! {
+            <ErrorPage err_num="404".to_string() err_msg=t_string!(i18n, not_found).to_string() />
           }
             .into_any()
         }
@@ -122,6 +128,13 @@ fn get_referrer() -> String {
   web_sys::window().unwrap().document().unwrap().referrer()
 }
 
+fn get_go_back_path() -> String {
+  let search = web_sys::window().unwrap().location().search().unwrap();
+  let params = web_sys::UrlSearchParams::new_with_str(&search).unwrap();
+  let value = params.get("back").unwrap_or("/".to_string());
+  value
+}
+
 fn redirect(uri: String) {
   web_sys::window()
     .unwrap()
@@ -138,10 +151,21 @@ fn GoBack() -> impl IntoView {
   let i18n = use_i18n();
   let ref_is_empty = get_referrer().is_empty();
   let go_back = move || redirect(get_referrer());
+  let go_back_through_query = move || redirect(get_go_back_path());
 
   #[cfg(not(debug_assertions))]
   view! {
-    <Show when=move || { !ref_is_empty }>
+    <Show
+      when=move || { !ref_is_empty }
+      fallback=move || {
+        view! {
+          <Button appearance=ButtonAppearance::Primary on_click=move |_| go_back_through_query()>
+            <MoveLeft color="white" size=24 stroke_width=2 />
+            <p class="ml-2">{move || t_string!(i18n, go_back)}</p>
+          </Button>
+        }
+      }
+    >
       <Button appearance=ButtonAppearance::Primary on_click=move |_| go_back()>
         <MoveLeft color="white" size=24 stroke_width=2 />
         <p class="ml-2">{move || t_string!(i18n, go_back)}</p>
@@ -157,4 +181,11 @@ fn GoBack() -> impl IntoView {
       </Button>
     </Show>
   }
+
+  // view! {
+  //   <Button appearance=ButtonAppearance::Primary on_click=move |_| go_back()>
+  //     <MoveLeft color="white" size=24 stroke_width=2 />
+  //     <p class="ml-2">{move || t_string!(i18n, go_back)}</p>
+  //   </Button>
+  // }
 }
