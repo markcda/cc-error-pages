@@ -1,24 +1,22 @@
 use cc_ui_kit::{prelude::*, router::get_path};
 use leptos_meta::*;
 use lucide_leptos::MoveLeft;
-use thaw::*;
 
 leptos_i18n::load_locales!();
 use crate::i18n::*;
 
 fn main() {
-  console_error_panic_hook::set_once();
-  #[cfg(debug_assertions)]
-  console_log::init_with_level(log::Level::Debug).unwrap();
-  #[cfg(not(debug_assertions))]
-  console_log::init_with_level(log::Level::Info).unwrap();
-  leptos::mount::mount_to_body(|| {
-    view! {
-      <I18nContextProvider>
-        <App />
-      </I18nContextProvider>
-    }
-  })
+  setup_app(
+    log::Level::Info,
+    Box::new(move || {
+      view! {
+        <I18nContextProvider>
+          <App />
+        </I18nContextProvider>
+      }
+      .into_any()
+    }),
+  )
 }
 
 #[component]
@@ -101,26 +99,16 @@ fn App() -> impl IntoView {
 
 #[component]
 fn ErrorPage(err_num: String, err_msg: String) -> impl IntoView {
-  let theme = RwSignal::new({
-    let mut theme = Theme::light();
-    theme.color.color_brand_background = "#17171a".to_string();
-    theme.color.color_brand_background_hover = "#2c2c32".to_string();
-    theme.color.color_brand_background_pressed = "#2c2c32".to_string();
-    theme
-  });
-
   let i18n = use_i18n();
 
   view! {
-    <ConfigProvider theme>
-      <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-        <h1 style="font-size: 72pt;" class="mb-10 text-gray-800 font-bold">
-          {err_num}
-        </h1>
-        <p class="mb-4 text-xl text-gray-600">{err_msg}</p>
-        <GoBack />
-      </div>
-    </ConfigProvider>
+    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+      <h1 style="font-size: 72pt;" class="mb-10 text-gray-800 dark:text-gray-200 font-bold">
+        {err_num}
+      </h1>
+      <p class="mb-4 text-xl text-gray-600 dark:text-gray-300 text-center">{err_msg}</p>
+      <GoBack />
+    </div>
   }
 }
 
@@ -160,14 +148,14 @@ fn GoBack() -> impl IntoView {
       fallback=move || {
         view! {
           <Button appearance=ButtonAppearance::Primary on_click=move |_| go_back_through_query()>
-            <MoveLeft color="white" size=24 stroke_width=2 />
+            <MoveLeft size=24 stroke_width=2 />
             <p class="ml-2">{move || t_string!(i18n, go_back)}</p>
           </Button>
         }
       }
     >
       <Button appearance=ButtonAppearance::Primary on_click=move |_| go_back()>
-        <MoveLeft color="white" size=24 stroke_width=2 />
+        <MoveLeft size=24 stroke_width=2 />
         <p class="ml-2">{move || t_string!(i18n, go_back)}</p>
       </Button>
     </Show>
@@ -176,7 +164,7 @@ fn GoBack() -> impl IntoView {
   view! {
     <Show when=move || { !ref_is_empty } fallback=move || view! { <a href="/404">"Go to 404"</a> }>
       <Button appearance=ButtonAppearance::Primary on_click=move |_| go_back()>
-        <MoveLeft color="white" size=24 stroke_width=2 />
+        <MoveLeft size=24 stroke_width=2 />
         <p class="ml-2">{move || t_string!(i18n, go_back)}</p>
       </Button>
     </Show>
