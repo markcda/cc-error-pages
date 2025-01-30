@@ -1,4 +1,7 @@
-use cc_ui_kit::{prelude::*, router::get_path};
+use cc_ui_kit::{
+  prelude::*,
+  router::{get_path, redirect},
+};
 use leptos_meta::*;
 use lucide_leptos::MoveLeft;
 
@@ -123,23 +126,12 @@ fn get_go_back_path() -> String {
   value
 }
 
-fn redirect(uri: String) {
-  web_sys::window()
-    .unwrap()
-    .document()
-    .unwrap()
-    .location()
-    .unwrap()
-    .set_href(uri.as_str())
-    .unwrap()
-}
-
 #[component]
 fn GoBack() -> impl IntoView {
   let i18n = use_i18n();
   let ref_is_empty = get_referrer().is_empty();
-  let go_back = move || redirect(get_referrer());
-  let go_back_through_query = move || redirect(get_go_back_path());
+  let go_back = move || redirect(get_referrer()).unwrap();
+  let go_back_through_query = move || redirect(get_go_back_path()).unwrap();
 
   #[cfg(not(debug_assertions))]
   view! {
